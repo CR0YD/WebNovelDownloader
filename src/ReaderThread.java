@@ -23,17 +23,23 @@ public class ReaderThread extends Thread {
 		super.run();
 		try {
 			LinkedList<String> list;
+			
 			createDirectory(gui, path);
+			
 			for (int i = 0; true; i++) {
 				list = WebsiteReader.readNovelFromUrl(url);
-				Saver.saveChapterInFile(list, append ? path + "\\" + bookTitleCorrected : path + "\\" + i, fileExtension, append);
+				Saver.saveChapterInFile(list, append ? path : path + "\\" + i, fileExtension, append);
 				gui.addProgressTextAreaText("Chapter " + i + " saved");
 				url = list.getLast();
 				if (url.isBlank())
 					break;
 			}
+			
+			Saver.finishSaveFiles(path, fileExtension, append);
+			
 			if (!append)
 				correctFileNames(path);
+			
 			gui.addProgressTextAreaText("Done!");
 		} catch (Exception exception) {
 			gui.addProgressTextAreaText(exception.toString());
@@ -43,21 +49,28 @@ public class ReaderThread extends Thread {
 
 	private static void correctFileNames(String path) {
 		File storyDirectory = new File(path);
+		
 		if (!storyDirectory.exists() || storyDirectory.listFiles().length < 11) {
 			return;
 		}
+		
 		File[] files = storyDirectory.listFiles();
 		int maxFileNameLength = ("" + (files.length - 1)).length();
-		for (int i = 0; i < files.length; i++) {
-			files[i].renameTo(new File(path + "\\"
+		
+		for (File file : files) {
+			if (file.getName().substring(0, file.getName().indexOf(".")).length() >= maxFileNameLength) {
+				continue;
+			}
+			file.renameTo(new File(path + "\\"
 					+ "0".repeat(maxFileNameLength
-							- files[i].getName().substring(0, files[i].getName().indexOf(".")).length())
-					+ files[i].getName()));
+							- file.getName().substring(0, file.getName().indexOf(".")).length())
+					+ file.getName()));
 		}
 	}
 
 	private static void createDirectory(GUI gui, String path) throws Exception {
 		File storyDirectory = new File(path);
+		
 		if (!storyDirectory.exists()) {
 			storyDirectory.mkdir();
 		}

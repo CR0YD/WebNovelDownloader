@@ -21,5 +21,15 @@
 			<attribute name="source_encoding" value="UTF-8"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/commons-io/2.13.0/commons-io-2.13.0.jar" sourcepath="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/commons-io/2.13.0/commons-io-2.13.0-sources.jar">
+		<attributes>
+			<attribute name="source_encoding" value="UTF-8"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/dom4j/2.1.4/dom4j-2.1.4.jar" sourcepath="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/dom4j/2.1.4/dom4j-2.1.4-sources.jar">
+		<attributes>
+			<attribute name="source_encoding" value="UTF-8"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
