@@ -1,0 +1,11 @@
+[novelpub]
+url = "https://www.novelpub.com"
+sourcePath = "novelpub.toml"
+
+[allnovelfull]
+url = "https://allnovelfull.net"
+sourcePath = "allnovelfull.toml"
+
+[noveltrust]
+url = "https://noveltrust.com"
+sourcePath = "noveltrust.toml"

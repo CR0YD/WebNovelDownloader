@@ -6,6 +6,20 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/jsoup-1.16.1.jar"/>
+	<classpathentry kind="lib" path="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/jsoup-1.16.1.jar" sourcepath="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/jsoup-1.16.1-sources.jar">
+		<attributes>
+			<attribute name="source_encoding" value="UTF-8"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/NightConfig/toml/3.6.7/toml-3.6.7.jar" sourcepath="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/NightConfig/toml/3.6.7/toml-3.6.7-sources.jar">
+		<attributes>
+			<attribute name="source_encoding" value="UTF-8"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/NightConfig/core/3.6.7/core-3.6.7.jar" sourcepath="D:/Programmieren(Simon)/eclipseJava-2021-03/libs/NightConfig/core/3.6.7/core-3.6.7-sources.jar">
+		<attributes>
+			<attribute name="source_encoding" value="UTF-8"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

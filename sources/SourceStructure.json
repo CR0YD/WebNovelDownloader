@@ -1,17 +1,17 @@
 {
-    "title": {
+    "titleElement": {
         "id": null,
         "class": null
     },
-    "content": {
+    "contentElement": {
         "id": null,
         "class": null,
-        "exceptions": {
+        "excluded": {
             "id": [],
             "class": []
         }
     },
-    "nextLink": {
+    "nextLinkElement": {
         "id": null,
         "class": null
     }

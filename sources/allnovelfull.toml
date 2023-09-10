@@ -1,0 +1,9 @@
+[titleElement]
+class = "truyen-title"
+
+[contentElement]
+id = "chapter-content"
+
+[nextLinkElement]
+id = "next_chap"
+baseLink = "https://allnovelfull.net"
