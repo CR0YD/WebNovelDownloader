@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.LinkedList;
 
 public class ReaderThread extends Thread {
 
@@ -21,13 +22,13 @@ public class ReaderThread extends Thread {
 	public void run() {
 		super.run();
 		try {
-			List<String> list;
+			LinkedList<String> list;
 			createDirectory(gui, path);
 			for (int i = 0; true; i++) {
 				list = WebsiteReader.readNovelFromUrl(url);
 				Saver.saveChapterInFile(list, append ? path + "\\" + bookTitleCorrected : path + "\\" + i, fileExtension, append);
 				gui.addProgressTextAreaText("Chapter " + i + " saved");
-				url = list.get(list.length() - 1);
+				url = list.getLast();
 				if (url.isBlank())
 					break;
 			}

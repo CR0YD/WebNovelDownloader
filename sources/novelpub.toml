@@ -5,5 +5,5 @@ class = "chapter-title"
 id = "chapter-container"
 
 [nextLinkElement]
-class = "button nextchap "
+class = "button nextchap"
 baseLink = "https://www.novelpub.com"
