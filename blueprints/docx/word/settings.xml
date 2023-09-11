@@ -33,6 +33,11 @@
         <w:compatSetting w:name="useWord2013TrackBottomHyphenation"
             w:uri="http://schemas.microsoft.com/office/word" w:val="0" />
     </w:compat>
+    <w:rsids>
+        <w:rsidRoot w:val="00E77C9A" />
+        <w:rsid w:val="009D3CAB" />
+        <w:rsid w:val="00E77C9A" />
+    </w:rsids>
     <m:mathPr>
         <m:mathFont m:val="Cambria Math" />
         <m:brkBin m:val="before" />

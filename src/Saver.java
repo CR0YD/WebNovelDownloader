@@ -9,9 +9,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 
 public class Saver {
 
@@ -54,35 +51,57 @@ public class Saver {
 		File baseDir = new File(filePath);
 		baseDir.mkdir();
 
-		if (append && !new File(filePath + "\\[Content_Types].xml").exists())
+		if (!new File(filePath + "\\[Content_Types].xml").exists())
 			FileUtils.copyDirectory(new File("blueprints/docx"), baseDir);
 
-		File document = new File(baseDir + "\\word\\document.xml");
+		//File document = new File(baseDir + "\\word\\document.xml");
 
-		SAXReader sr = new SAXReader();
-		Document doc = sr.read(document);
+		/*
+		 * SAXReader sr = new SAXReader(); Document doc = sr.read(document);
+		 */
+
+		FileWriter out = new FileWriter(baseDir + "\\word\\document.xml", StandardCharsets.UTF_8, true);
 
 		chapter.forEach(line -> {
 			if ((line.equals(chapter.getFirst()) && chapter.getFirst().equals(chapter.get(1)))
 					|| line.equals(chapter.getLast())) {
 				return;
 			}
-			Element paragraphRoot = doc.getRootElement().element("body").addElement("w:p");
-			paragraphRoot.addElement("w:pPr").addElement("w:pStyle").addAttribute("w:val", "KeinLeerraum");
-			paragraphRoot.addElement("w:r").addElement("w:t").addText(line);
-			paragraphRoot = doc.getRootElement().element("body").addElement("w:p");
-			paragraphRoot.addElement("w:pPr").addElement("w:pStyle").addAttribute("w:val", "KeinLeerraum");
-			paragraphRoot.addElement("w:r").addElement("w:t").addText("");
+
+			try {
+				out.write("<w:p><w:r><w:t>" + line.replace("<", "\u2770").replace(">", "\u2771").replace("&", "&amp;")
+						.replace("\"", "&quot;").replace("'", "&apos;") + "</w:t></w:r></w:p>");
+				out.write("<w:p><w:r><w:t></w:t></w:r></w:p>");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			/*
+			 * Element paragraphRoot =
+			 * doc.getRootElement().element("body").addElement("w:p");
+			 * paragraphRoot.addElement("w:pPr").addElement("w:pStyle").addAttribute(
+			 * "w:val", "KeinLeerraum");
+			 * paragraphRoot.addElement("w:r").addElement("w:t").addText(line);
+			 * paragraphRoot = doc.getRootElement().element("body").addElement("w:p");
+			 * paragraphRoot.addElement("w:pPr").addElement("w:pStyle").addAttribute(
+			 * "w:val", "KeinLeerraum");
+			 * paragraphRoot.addElement("w:r").addElement("w:t").addText("");
+			 */
 		});
 
-		FileWriter out = new FileWriter(baseDir + "\\word\\document.xml", StandardCharsets.UTF_8);
-		out.write(doc.asXML());
-		out.flush();
-		out.close();
-		
+		/*
+		 * FileWriter out = new FileWriter(baseDir + "\\word\\document.xml",
+		 * StandardCharsets.UTF_8); out.write(doc.asXML()); out.flush(); out.close();
+		 */
+
 		if (append) {
+			out.flush();
+			out.close();
 			return;
 		}
+
+		out.write("</w:body></w:document>");
+		out.flush();
+		out.close();
 
 		// creating the actual .docx
 		FileOutputStream fos = new FileOutputStream(baseDir.getParent() + "\\" + baseDir.getName() + ".docx");
@@ -98,15 +117,19 @@ public class Saver {
 		deleteFile(baseDir);
 	}
 
-	public static void finishSaveFiles(String filePath, String fileExtension,
-			boolean append) throws Exception {
+	public static void finishSaveFiles(String filePath, String fileExtension, boolean append) throws Exception {
 		if (fileExtension.equalsIgnoreCase("docx")) {
 			if (!append) {
 				return;
 			}
-			
+
 			File baseDir = new File(filePath);
-			
+
+			FileWriter out = new FileWriter(baseDir + "\\word\\document.xml", StandardCharsets.UTF_8, true);
+			out.write("</w:body></w:document>");
+			out.flush();
+			out.close();
+
 			FileOutputStream fos = new FileOutputStream(baseDir.getParent() + "\\" + baseDir.getName() + ".docx");
 			ZipOutputStream zipOut = new ZipOutputStream(fos);
 
@@ -118,7 +141,7 @@ public class Saver {
 			fos.close();
 
 			deleteFile(baseDir);
-			
+
 			return;
 		}
 	}
