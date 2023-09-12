@@ -34,9 +34,10 @@
             w:uri="http://schemas.microsoft.com/office/word" w:val="0" />
     </w:compat>
     <w:rsids>
-        <w:rsidRoot w:val="00E77C9A" />
-        <w:rsid w:val="009D3CAB" />
-        <w:rsid w:val="00E77C9A" />
+        <w:rsidRoot w:val="0068547E" />
+        <w:rsid w:val="0068547E" />
+        <w:rsid w:val="00745BCB" />
+        <w:rsid w:val="00AE4728" />
     </w:rsids>
     <m:mathPr>
         <m:mathFont m:val="Cambria Math" />
