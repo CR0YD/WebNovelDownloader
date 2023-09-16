@@ -1,3 +1,4 @@
+package main.java;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -14,10 +15,6 @@ public class GUI extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private GUI gui;
-
-	public static void main(String[] args) {
-		new GUI();
-	}
 
 	private JLabel inputURLLabel, inputTitleLabel, inputPathLabel, progressLabel, inputTypeLabel;
 	private JTextField inputURL, inputTitle, inputPath, inputType;

@@ -1,3 +1,4 @@
+package main.java;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -14,25 +15,17 @@ import com.electronwill.nightconfig.toml.TomlParser;
 
 public class WebsiteReader {
 
-	public static void main(String[] args) {
-		try {
-			LinkedList<String> chapter = readNovelFromUrl(
-					"https://www.novelpub.com/novel/the-academys-weakest-became-a-demon-limited-hunter-1632/chapter-1");
-			chapter.forEach(element -> System.out.println(element));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
+	private final static String SOURCE_PATH = "sourceConfigs/";
+	
 	public static LinkedList<String> readNovelFromUrl(String url) throws Exception {
-		Config sourceRegister = new TomlParser().parse(new File("sources/SourceRegister.toml"),
+		Config sourceRegister = new TomlParser().parse(new File(SOURCE_PATH + "SourceRegister.toml"),
 				FileNotFoundAction.THROW_ERROR, Charset.forName("utf-8"));
 
 		for (String key : sourceRegister.valueMap().keySet()) {
 			if (new URL(sourceRegister.get(key + ".url"))
 					.sameFile(new URL(url.replace(new URL(url).getPath(), "")))) {
 				Config sourceFile = new TomlParser().parse(
-						new File("sources/" + sourceRegister.get(key + ".sourcePath")), FileNotFoundAction.THROW_ERROR,
+						new File(SOURCE_PATH + sourceRegister.get(key + ".sourcePath")), FileNotFoundAction.THROW_ERROR,
 						Charset.forName("utf-8"));
 
 				Map<String, Object> sourceFileValues = sourceFile.valueMap();
