@@ -1,13 +1,12 @@
 package main.java;
+
 import java.io.File;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.FileNotFoundAction;
@@ -15,112 +14,70 @@ import com.electronwill.nightconfig.toml.TomlParser;
 
 public class WebsiteReader {
 
-	private final static String SOURCE_PATH = "sourceConfigs/";
+	private static final String SOURCES_FOLDER_PATH = "resources/sourceConfigs";
 	
-	public static LinkedList<String> readNovelFromUrl(String url) throws Exception {
-		Config sourceRegister = new TomlParser().parse(new File(SOURCE_PATH + "SourceRegister.toml"),
-				FileNotFoundAction.THROW_ERROR, Charset.forName("utf-8"));
+	public static LinkedList<String> readNovelFromUrl(String url, String source) throws Exception {
+		File sourceFile = new File(SOURCES_FOLDER_PATH + "/" + SourceManager.getSourceConfigs(source).valueMap().get("sourcePath"));
 
-		for (String key : sourceRegister.valueMap().keySet()) {
-			if (new URL(sourceRegister.get(key + ".url"))
-					.sameFile(new URL(url.replace(new URL(url).getPath(), "")))) {
-				Config sourceFile = new TomlParser().parse(
-						new File(SOURCE_PATH + sourceRegister.get(key + ".sourcePath")), FileNotFoundAction.THROW_ERROR,
-						Charset.forName("utf-8"));
+		Map<String, Object> sourceFileValues = new TomlParser()
+				.parse(sourceFile, FileNotFoundAction.THROW_ERROR, Charset.forName("utf-8")).valueMap();
 
-				Map<String, Object> sourceFileValues = sourceFile.valueMap();
-
-				return read(((Config) sourceFileValues.get("titleElement")).valueMap(),
-						((Config) sourceFileValues.get("contentElement")).valueMap(),
-						((Config) sourceFileValues.get("nextLinkElement")).valueMap(), url);
-			}
-		}
-
-		throw new Exception("No source for the url " + url + "was found");
+		return read(((Config) sourceFileValues.get("novelChapter")).valueMap(), url);
 	}
 
-	private static LinkedList<String> read(Map<String, Object> titleElement, Map<String, Object> contentElement,
-			Map<String, Object> nextLinkElement, String url) throws Exception {
+	public static String readCoverFromUrl(String url, String source) throws Exception {
+		File sourceFile = new File(SOURCES_FOLDER_PATH + "/" + SourceManager.getSourceConfigs(source).valueMap().get("sourcePath"));
+
+		Map<String, Object> sourceFileConfigMap = new TomlParser()
+				.parse(sourceFile, FileNotFoundAction.THROW_ERROR, Charset.forName("utf-8")).valueMap();
+
+		Document novelOverview = Jsoup.connect(url).get();
+		
+		String coverUrl = novelOverview.getAllElements()
+				.select(((Config) sourceFileConfigMap.get("novelOverview")).valueMap().get("cover").toString())
+				.attr(((Config) sourceFileConfigMap.get("novelOverview")).valueMap().get("cover-attr") == null ? "src"
+						: (String) ((Config) sourceFileConfigMap.get("novelOverview")).valueMap().get("cover-attr"));
+		
+		String baseLink = ((Config) sourceFileConfigMap.get("novelOverview")).valueMap().get("baseLink") == null ? "" : ((Config) sourceFileConfigMap.get("novelOverview")).valueMap().get("baseLink").toString();
+		
+		return coverUrl.startsWith(baseLink) ? coverUrl : baseLink + coverUrl;
+	}
+
+	private static LinkedList<String> read(Map<String, Object> novelChapter, String url) throws Exception {
 		Document doc = Jsoup.connect(url).get();
-		doc = Jsoup.parse(doc.html(), "UTF-8");
 
 		LinkedList<String> chapter = new LinkedList<>();
 
 		// parsing chapter title
-		chapter.add(getTitle(doc, titleElement));
+		chapter.add(doc.getAllElements().select(novelChapter.get("title").toString()).first().text());
 
 		// parsing chapter content
-		chapter.addAll(getChapter(doc, contentElement));
+		doc.getAllElements().select(novelChapter.get("content").toString()).forEach(element -> {
+			if (!element.text().isBlank()) {
+				chapter.add(element.text());
+			}
+		});
 
 		// parsing next chapter link
-		chapter.add(getNextChapterLink(doc, nextLinkElement));
+		String nextChapterLink = doc.getAllElements().select(novelChapter.get("nextChapter").toString()).attr("href");
+		
+		if (nextChapterLink.isBlank()) {
+			chapter.add("");
+			return chapter;
+		}
+		
+		String baseLink = novelChapter.get("baseLink") == null ? "" : novelChapter.get("baseLink").toString();
+		String endLink = novelChapter.get("endLink") == null ? "" : novelChapter.get("endLink").toString();
 
+		if (endLink.isBlank()) {
+			chapter.add(nextChapterLink.isBlank() ? ""
+					: (nextChapterLink.startsWith(baseLink) ? nextChapterLink : baseLink + nextChapterLink));
+			return chapter;
+		}
+
+		chapter.add(nextChapterLink.equals(endLink) ? ""
+				: (nextChapterLink.startsWith(baseLink) ? nextChapterLink : baseLink + nextChapterLink));
 		return chapter;
-	}
-
-	private static String getTitle(Document doc, Map<String, Object> titleElement) throws Exception {
-		if (!titleElement.containsKey("id") && !titleElement.containsKey("class")) {
-			throw new Exception("There has to be either an \"class\" or an \"id\" key to find the title element");
-		}
-
-		Element element = findElement(doc, (String) titleElement.get("id"), (String) titleElement.get("class"));
-
-		if (element == null) {
-			throw new Exception("No title element was found");
-		}
-
-		return element.text();
-	}
-
-	private static LinkedList<String> getChapter(Document doc, Map<String, Object> contentElement) throws Exception {
-		if (!contentElement.containsKey("id") && !contentElement.containsKey("class")) {
-			throw new Exception("There has to be either an \"class\" or an \"id\" key to find the chapter element");
-		}
-
-		Element element = findElement(doc, (String) contentElement.get("id"), (String) contentElement.get("class"));
-
-		if (element == null) {
-			throw new Exception("No title element was found");
-		}
-
-		LinkedList<String> chapter = new LinkedList<>();
-
-		for (Element child : element.children()) {
-			if (!child.text().isBlank()) {
-				chapter.add(child.text());
-			}
-		}
-		return chapter;
-	}
-
-	private static String getNextChapterLink(Document doc, Map<String, Object> nextLinkElement) throws Exception {
-		if (!nextLinkElement.containsKey("id") && !nextLinkElement.containsKey("class")) {
-			throw new Exception("There has to be either an \"class\" or an \"id\" key to find the next chapter link");
-		}
-
-		Element element = findElement(doc, (String) nextLinkElement.get("id"), (String) nextLinkElement.get("class"));
-
-		if (element == null) {
-			return "";
-		}
-
-		return nextLinkElement.get("baseLink") == null ? element.attr("href")
-						: (String) nextLinkElement.get("baseLink") + element.attr("href");
-	}
-
-	private static Element findElement(Document doc, String elementId, String elementClass) {
-		Element[] elements = new Element[0];
-
-		elements = doc.getAllElements().toArray(elements);
-
-		for (Element element : elements) {
-			if (elementId != null ? element.id().equals(elementId)
-					: true && elementClass != null ? element.className().equals(elementClass) : true) {
-				return element;
-			}
-		}
-
-		return null;
 	}
 
 }

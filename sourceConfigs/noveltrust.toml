@@ -1,8 +1,0 @@
-[titleElement]
-class = "chapter"
-
-[contentElement]
-class = "txt"
-
-[nextLinkElement]
-id = "next"

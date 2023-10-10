@@ -1,0 +1,22 @@
+[novelChapter]
+title = ".chapter-title"
+content = "#chapter-container > p"
+nextChapter = ".nextchap"
+endLink = "javascript:;"
+baseLink = "https://www.novelpub.com"
+
+[novelOverview]
+cover = ".cover > img"
+cover-attr = "data-src"
+description = ".summary > .content > p"
+firstChapter = "#readchapterbtn"
+baseLink = "https://www.novelpub.com"
+
+[novelCollection]
+url = "https://www.novelpub.com/browse/genre-all-25060123/order-popular/status-all"
+novelElement = ".novel-title > a"
+nextPage = ".PagedList-skipToNext > a"
+baseLink = "https://www.novelpub.com"
+
+[novelList]
+novelListPath = "novelList.json"

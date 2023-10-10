@@ -1,136 +1,211 @@
 package main.java;
 
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.DirectoryChooser;
 
-public class GUI extends JFrame {
+public class GUI {
 
-	private static final long serialVersionUID = 1L;
-	private GUI gui;
+	private Scene scene;
 
-	private JLabel inputURLLabel, inputTitleLabel, inputPathLabel, progressLabel, inputTypeLabel;
-	private JTextField inputURL, inputTitle, inputPath, inputType;
-	private JButton startButton, cancelButton;
-	private JTextArea progressTextArea;
-	private Font standardFont;
-	private JRadioButton oneFileRadioButton;
+	private ComboBox<String> sourceSelection, typeSelection;
+	private Button loadNovels, pathSelectButton, download;
+	private ListView<String> novelList;
+	private Label novelTitle;
+	private ImageView novelCover;
+	private TextArea novelDescription;
+	private TextField pathTextField;
+	private CheckBox singleFileCheck;
 
-	public GUI() {
-		gui = this;
-		setTitle("WebNovelEctractor");
-		standardFont = new Font(Font.MONOSPACED, Font.PLAIN, 15);
-		setResizable(false);
-		setBounds(300, 300, 470 + 16, 600 - 17);
-		initComponents();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setVisible(true);
+	public GUI(Parent root) {
+		scene = new Scene(root);
+		configureComponents();
+
 	}
 
-	private void initComponents() {
-		setLayout(null);
+	public Scene getScene() {
+		return scene;
+	}
 
-		inputTitleLabel = new JLabel("Enter title     ->");
-		inputTitleLabel.setFont(standardFont);
-		inputTitleLabel.setBounds(50, 50, 200, 20);
-		add(inputTitleLabel);
+	@SuppressWarnings("unchecked")
+	private void configureComponents() {
+		sourceSelection = (ComboBox<String>) scene.lookup("#sourceSelection");
+		modifySourceSelection();
 
-		inputTitle = new JTextField();
-		inputTitle.setFont(standardFont);
-		inputTitle.setBounds(inputTitleLabel.getX() + 170, inputTitleLabel.getY(), 200, 23);
-		add(inputTitle);
+		loadNovels = (Button) scene.lookup("#loadNovels");
+		modifyLoadNovels();
 
-		inputURLLabel = new JLabel("Enter URL       ->");
-		inputURLLabel.setFont(standardFont);
-		inputURLLabel.setBounds(inputTitleLabel.getX(), inputTitleLabel.getY() + 50, 200, 20);
-		add(inputURLLabel);
+		novelList = (ListView<String>) scene.lookup("#novelList");
+		modifyNovelList();
 
-		inputURL = new JTextField();
-		inputURL.setFont(standardFont);
-		inputURL.setBounds(inputURLLabel.getX() + 170, inputURLLabel.getY(), 200, 23);
-		add(inputURL);
+		novelTitle = (Label) scene.lookup("#novelTitle");
+		novelCover = (ImageView) scene.lookup("#novelCover");
+		novelDescription = (TextArea) scene.lookup("#novelDescription");
 
-		inputPathLabel = new JLabel("Enter save path ->");
-		inputPathLabel.setFont(standardFont);
-		inputPathLabel.setBounds(inputURLLabel.getX(), inputURLLabel.getY() + 50, 200, 20);
-		add(inputPathLabel);
+		typeSelection = (ComboBox<String>) scene.lookup("#typeSelection");
+		modifyTypeSelection();
 
-		inputPath = new JTextField();
-		inputPath.setFont(standardFont);
-		inputPath.setBounds(inputPathLabel.getX() + 170, inputPathLabel.getY(), 200, 23);
-		add(inputPath);
+		pathTextField = (TextField) scene.lookup("#pathTextField");
 
-		inputTypeLabel = new JLabel("Enter extension ->");
-		inputTypeLabel.setFont(standardFont);
-		inputTypeLabel.setBounds(inputPathLabel.getX(), inputPathLabel.getY() + 50, 200, 20);
-		add(inputTypeLabel);
+		pathSelectButton = (Button) scene.lookup("#pathSelectButton");
+		modifyPathSelectButton();
 
-		inputType = new JTextField();
-		inputType.setFont(standardFont);
-		inputType.setBounds(inputTypeLabel.getX() + 170, inputTypeLabel.getY(), 200, 23);
-		add(inputType);
+		singleFileCheck = (CheckBox) scene.lookup("#singleFileCheck");
 
-		startButton = new JButton("Start");
-		startButton.setBounds(inputTypeLabel.getX(), inputTypeLabel.getY() + 50, 100, 20);
-		startButton.setFocusable(false);
-		add(startButton);
+		download = (Button) scene.lookup("#download");
+		modifyDownload();
+	}
 
-		startButton.addActionListener(new ActionListener() {
+	private void modifySourceSelection() {
+		ObservableList<String> sourceOptions = FXCollections
+				.observableArrayList(Arrays.stream(SourceManager.getSourceNames()).toList());
+
+		sourceSelection.setItems(sourceOptions);
+		sourceSelection.setVisibleRowCount(5);
+
+		sourceSelection.valueProperty().addListener(new ChangeListener<String>() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (inputURL.getText().length() != 0 && inputTitle.getText().length() != 0
-						&& inputPath.getText().length() != 0) {
-					ReaderThread reader = new ReaderThread(gui, inputURL.getText(), inputTitle.getText(),
-							inputPath.getText(), inputType.getText(), oneFileRadioButton.isSelected());
-					reader.start();
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				try {
+					updateNovelList(newValue);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+		});
+	}
+
+	private void modifyLoadNovels() {
+		loadNovels.pressedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				if (newValue) {
+					try {
+						String source = sourceSelection.valueProperty().getValue().toString();
+						SourceManager.fetchNovels(source);
+						updateNovelList(source);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+		});
+	}
+
+	private void modifyNovelList() {
+		novelList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if (newValue == null) {
 					return;
 				}
-				addProgressTextAreaText("Error: Please input a URL, a title and a path!");
+				try {
+					LinkedList<String> novelOverview = SourceManager
+							.getNovelDetails(sourceSelection.valueProperty().getValue().toString(), newValue);
+
+					novelTitle.setText(novelOverview.get(0));
+
+					Image cover = new Image((String) novelOverview.get(1));
+					novelCover.setLayoutX((639 - cover.getWidth()) / 2);
+					novelCover.setImage(cover);
+
+					novelDescription.setText(novelOverview.get(2));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		});
-
-		oneFileRadioButton = new JRadioButton("Single file");
-		oneFileRadioButton.setFont(standardFont);
-		oneFileRadioButton.setBounds(startButton.getX() + 125, startButton.getY(), 130, 20);
-		oneFileRadioButton.setFocusable(false);
-		add(oneFileRadioButton);
-
-		cancelButton = new JButton("Cancel");
-		cancelButton.setBounds(startButton.getX() + 270, startButton.getY(), 100, 20);
-		cancelButton.setFocusable(false);
-		add(cancelButton);
-
-		cancelButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		});
-
-		progressLabel = new JLabel("Progress:");
-		progressLabel.setFont(standardFont);
-		progressLabel.setBounds(startButton.getX(), startButton.getY() + 50, 200, 20);
-		add(progressLabel);
-
-		progressTextArea = new JTextArea();
-		progressTextArea.setFont(standardFont);
-		progressTextArea.setBounds(progressLabel.getX(), progressLabel.getY() + 30, 370, 150);
-		progressTextArea.setLineWrap(true);
-		progressTextArea.setEnabled(false);
-		add(progressTextArea);
 	}
 
-	public synchronized void addProgressTextAreaText(String text) {
-		progressTextArea.setText("- " + text + "\n" + progressTextArea.getText());
+	private void updateNovelList(String source) throws Exception {
+		novelList.getSelectionModel().clearSelection();
+		LinkedList<String> novelNames = SourceManager.getNovelNames(source);
+
+		novelNames.sort(Comparator.naturalOrder());
+
+		novelList.setItems(FXCollections.observableList(novelNames));
+	}
+
+	private void modifyTypeSelection() {
+		ObservableList<String> sourceOptions = FXCollections.observableArrayList("EPUB", "TXT", "DOCX");
+
+		typeSelection.setItems(sourceOptions);
+		typeSelection.setVisibleRowCount(5);
+	}
+
+	private void modifyPathSelectButton() {
+		pathSelectButton.pressedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				if (newValue) {
+					DirectoryChooser directoryChooser = new DirectoryChooser();
+					File directory = directoryChooser.showDialog(scene.getWindow());
+					if (directory != null) {
+						pathTextField.setText(directory.getAbsolutePath());
+					}
+				}
+			}
+
+		});
+	}
+
+	private void modifyDownload() {
+		GUI gui = this;
+		download.pressedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				if (newValue) {
+					if (typeSelection.itemsProperty().getValue() == null) {
+						System.out.println("Please select a type!");
+						return;
+					}
+					if (pathTextField.getText().isBlank()) {
+						System.out.println("Please select a destination!");
+						return;
+					}
+					try {
+						ReaderThread reader = new ReaderThread(sourceSelection.valueProperty().getValue().toString(), gui,
+								SourceManager.getNovelLink(sourceSelection.valueProperty().getValue().toString(),
+										novelList.getSelectionModel().getSelectedItem()),
+								novelList.getSelectionModel().getSelectedItem(), pathTextField.getText(),
+								typeSelection.valueProperty().getValue(), singleFileCheck.isSelected());
+						reader.start();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+		});
+	}
+
+	public void addProgressTextAreaText(String text) {
+		System.out.println(text);
 	}
 
 }

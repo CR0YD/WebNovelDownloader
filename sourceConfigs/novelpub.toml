@@ -1,9 +1,0 @@
-[titleElement]
-class = "chapter-title"
-
-[contentElement]
-id = "chapter-container"
-
-[nextLinkElement]
-class = "button nextchap"
-baseLink = "https://www.novelpub.com"

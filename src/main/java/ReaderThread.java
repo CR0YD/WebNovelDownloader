@@ -2,13 +2,16 @@ package main.java;
 import java.io.File;
 import java.util.LinkedList;
 
+import main.java.FileSystem.AdjustmentType;
+
 public class ReaderThread extends Thread {
 
 	private GUI gui;
-	private String url, bookTitle, bookTitleCorrected, path, fileExtension;
+	private String url, bookTitle, bookTitleCorrected, path, fileExtension, source;
 	private boolean append;
 
-	public ReaderThread(GUI gui, String url, String bookTitle, String path, String fileExtension, boolean append) {
+	public ReaderThread(String source, GUI gui, String url, String bookTitle, String path, String fileExtension, boolean append) {
+		this.source = source;
 		this.gui = gui;
 		this.url = url;
 		this.bookTitle = bookTitle;
@@ -25,11 +28,15 @@ public class ReaderThread extends Thread {
 		try {
 			LinkedList<String> list;
 			
-			createDirectory(gui, path);
+			File directory = FileSystem.createDirectory(path);
+			
+			Saver.saveCover(SourceManager.getNovelDetails(source, bookTitle).get(1), path, bookTitle, fileExtension);
+			
+			url = SourceManager.getFirstChapterLink(source, bookTitle);
 			
 			for (int i = 0; true; i++) {
-				list = WebsiteReader.readNovelFromUrl(url);
-				Saver.saveChapterInFile(list, append ? path : path + "\\" + i, fileExtension, append);
+				list = WebsiteReader.readNovelFromUrl(url, source);
+				Saver.saveChapterInFile(list, append ? path : path + "\\" + i, bookTitle, i, fileExtension, append);
 				gui.addProgressTextAreaText("Chapter " + i + " saved");
 				url = list.getLast();
 				if (url.isBlank())
@@ -39,41 +46,12 @@ public class ReaderThread extends Thread {
 			Saver.finishSaveFiles(path, fileExtension, append);
 			
 			if (!append)
-				correctFileNames(path);
+				FileSystem.adjustFileNameLength(directory, "0", AdjustmentType.PREFIX);
 			
 			gui.addProgressTextAreaText("Done!");
 		} catch (Exception exception) {
 			gui.addProgressTextAreaText(exception.toString());
 			exception.printStackTrace();
-		}
-	}
-
-	private static void correctFileNames(String path) {
-		File storyDirectory = new File(path);
-		
-		if (!storyDirectory.exists() || storyDirectory.listFiles().length < 11) {
-			return;
-		}
-		
-		File[] files = storyDirectory.listFiles();
-		int maxFileNameLength = ("" + (files.length - 1)).length();
-		
-		for (File file : files) {
-			if (file.getName().substring(0, file.getName().indexOf(".")).length() >= maxFileNameLength) {
-				continue;
-			}
-			file.renameTo(new File(path + "\\"
-					+ "0".repeat(maxFileNameLength
-							- file.getName().substring(0, file.getName().indexOf(".")).length())
-					+ file.getName()));
-		}
-	}
-
-	private static void createDirectory(GUI gui, String path) throws Exception {
-		File storyDirectory = new File(path);
-		
-		if (!storyDirectory.exists()) {
-			storyDirectory.mkdir();
 		}
 	}
 }

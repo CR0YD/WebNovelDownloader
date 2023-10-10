@@ -1,0 +1,17 @@
+[novelChapter]
+title = ".chapter"
+content = ".txt > p"
+nextChapter = "#next"
+
+[novelOverview]
+cover = ".m-imgtxt > .pic > img"
+description = ".m-desc > .txt > div"
+firstChapter = ".m-newest2 > ul > li > a"
+
+[novelCollection]
+url = "https://noveltrust.com/list/most-popular-novels/"
+novelElement = ".tit > a"
+nextPage = ".next > a"
+
+[novelList]
+novelListPath = "novelList.json"

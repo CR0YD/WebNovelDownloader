@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+    <dc:identifier opf:scheme="uuid" id="uuid_id">712901fb-7262-443a-b4e7-e990c3a36452</dc:identifier>
+  </metadata>
+  <manifest>
+  </manifest>
+  <spine toc="ncx">
+  </spine>
+</package>

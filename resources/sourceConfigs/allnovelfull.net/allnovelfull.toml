@@ -1,0 +1,20 @@
+[novelChapter]
+title = ".chapter-title"
+content = "#chapter-content > p"
+nextChapter = "#next_chap"
+baseLink = "https://allnovelfull.net"
+
+[novelOverview]
+cover = ".book > img"
+description = ".desc-text > p"
+firstChapter = ".list-chapter > li > a"
+baseLink = "https://allnovelfull.net"
+
+[novelCollection]
+url = "https://allnovelfull.net/most-popular"
+novelElement = ".truyen-title > a"
+nextPage = ".next > a"
+baseLink = "https://allnovelfull.net"
+
+[novelList]
+novelListPath = "novelList.json"

@@ -1,11 +1,11 @@
 [novelpub]
 url = "https://www.novelpub.com"
-sourcePath = "novelpub.toml"
+sourcePath = "novelpub.com/novelpub.toml"
 
 [allnovelfull]
 url = "https://allnovelfull.net"
-sourcePath = "allnovelfull.toml"
+sourcePath = "allnovelfull.net/allnovelfull.toml"
 
 [noveltrust]
 url = "https://noveltrust.com"
-sourcePath = "noveltrust.toml"
+sourcePath = "noveltrust.com/noveltrust.toml"
